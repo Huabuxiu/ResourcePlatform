@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.project.dao.HostInformationMapper">
+  <resultMap id="BaseResultMap" type="com.company.project.model.HostInformation">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="hiid" jdbcType="INTEGER" property="hiid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="reg_time" jdbcType="TIMESTAMP" property="regTime" />
+    <result column="rtid" jdbcType="INTEGER" property="rtid" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="port" jdbcType="INTEGER" property="port" />
+  </resultMap>
+</mapper>

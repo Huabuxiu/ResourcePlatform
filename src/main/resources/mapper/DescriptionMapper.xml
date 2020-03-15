@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.project.dao.DescriptionMapper">
+  <resultMap id="BaseResultMap" type="com.company.project.model.Description">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="deid" jdbcType="INTEGER" property="deid" />
+    <result column="reg_time" jdbcType="TIMESTAMP" property="regTime" />
+    <result column="html" jdbcType="LONGVARCHAR" property="html" />
+  </resultMap>
+</mapper>

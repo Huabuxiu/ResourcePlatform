@@ -18,28 +18,83 @@ SET FOREIGN_KEY_CHECKS=0;
 -- ----------------------------
 -- Table structure for user
 -- ----------------------------
+show databases ;
+create database resources;
+use resources;
+
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `nick_name` varchar(255) DEFAULT NULL,
-  `sex` int(1) DEFAULT NULL,
-  `register_date` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+                        `id` int(11) NOT NULL AUTO_INCREMENT,
+                        `username` varchar(255) NOT NULL,
+                        `password` varchar(255) NOT NULL,
+                        `name` varchar(255)  NOT NULL ,
+                        `e_mail` varchar(255)  NOT NULL ,
+                        `phone` varchar(255)  NOT NULL ,
+                        `reg_time` datetime NOT NULL,
+                        `token` varchar(255)  NOT NULL ,
+                        PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
--- ----------------------------
--- Records of user
--- ----------------------------
-INSERT INTO `user` VALUES ('1', '89921218@qq.com', '1ee04e0b1cb5af7367c80c22e42efd8b', '土豆', '1', '2017-06-23 14:24:23');
-INSERT INTO `user` VALUES ('2', '2@qq.com', '1ee04e0b1cb5af7367c80c22e42efd8b', '土豆-2', '1', '2017-06-23 14:24:23');
-INSERT INTO `user` VALUES ('3', '3@qq.com', '1ee04e0b1cb5af7367c80c22e42efd8b', '土豆-3', '1', '2017-06-23 14:24:23');
-INSERT INTO `user` VALUES ('4', '4@qq.com', '1ee04e0b1cb5af7367c80c22e42efd8b', '土豆-4', '1', '2017-06-23 14:24:23');
-INSERT INTO `user` VALUES ('5', '5@qq.com', '1ee04e0b1cb5af7367c80c22e42efd8b', '土豆-5', '1', '2017-06-23 14:24:23');
-INSERT INTO `user` VALUES ('6', '6@qq.com', '1ee04e0b1cb5af7367c80c22e42efd8b', '土豆-6', '1', '2017-06-23 14:24:23');
-INSERT INTO `user` VALUES ('7', '7@qq.com', '1ee04e0b1cb5af7367c80c22e42efd8b', '土豆-7', '1', '2017-06-23 14:24:23');
-INSERT INTO `user` VALUES ('8', '8@qq.com', '1ee04e0b1cb5af7367c80c22e42efd8b', '土豆-8', '1', '2017-06-23 14:24:23');
-INSERT INTO `user` VALUES ('9', '9@qq.com', '1ee04e0b1cb5af7367c80c22e42efd8b', '土豆-9', '1', '2017-06-23 14:24:23');
-INSERT INTO `user` VALUES ('10', '10@qq.com', '1ee04e0b1cb5af7367c80c22e42efd8b', '土豆-10', '1', '2017-06-23 14:24:23');
-SET FOREIGN_KEY_CHECKS=1;
+DROP TABLE IF EXISTS `department`;
+CREATE TABLE `department` (
+                        `did` int(11) NOT NULL AUTO_INCREMENT,
+                        `name` varchar(255) NOT NULL,
+                        `introduce` varchar(255) NOT NULL,
+                        `reg_time` datetime NOT NULL,
+                        PRIMARY KEY (`did`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+
+
+DROP TABLE IF EXISTS `department_user`;
+CREATE TABLE `department_user` (
+                              `did` int(11) NOT NULL ,
+                              `id` int(11) NOT NULL ,
+                              FOREIGN KEY (did) REFERENCES department(did),
+                              FOREIGN KEY (did) REFERENCES user(id)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `news`;
+CREATE TABLE `news` (
+                              `nid` int(11) NOT NULL AUTO_INCREMENT,
+                              `title` varchar(255) NOT NULL,
+                              `html` longtext ,
+                              `reg_time` datetime NOT NULL,
+                              PRIMARY KEY (`nid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS `description`;
+CREATE TABLE `description` (
+                        `deid` int(11) NOT NULL AUTO_INCREMENT,
+                        `html` longtext ,
+                        `reg_time` datetime NOT NULL,
+                        PRIMARY KEY (`deid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS `resource_type`;
+CREATE TABLE `resource_type` (
+                        `rtid` int(11) NOT NULL AUTO_INCREMENT,
+                        `resource_name` varchar(255) NOT NULL,
+                        `introduction` varchar(255) NOT NULL,
+                        `image` varchar(255) NOT NULL,
+                        `reg_time` datetime NOT NULL,
+                        `deid` int(11) NOT NULL ,
+                        PRIMARY KEY (`rtid`),
+                        FOREIGN KEY (deid) REFERENCES description(`deid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS `host_information`;
+CREATE TABLE `host_information` (
+                               `hiid` int(11) NOT NULL AUTO_INCREMENT,
+                               `name` varchar(255) NOT NULL,
+                               `reg_time` datetime NOT NULL,
+                               `rtid` int(11) NOT NULL,
+                               `address` varchar(255) NOT NULL,
+                               `port` int(10) NOT NULL,
+                               PRIMARY KEY (`hiid`),
+                               FOREIGN KEY (rtid) REFERENCES resource_type(`rtid`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
