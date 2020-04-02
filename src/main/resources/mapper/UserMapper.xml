@@ -13,5 +13,6 @@
     <result column="phone" jdbcType="VARCHAR" property="phone" />
     <result column="reg_time" jdbcType="TIMESTAMP" property="regTime" />
     <result column="token" jdbcType="VARCHAR" property="token" />
+    <result column="user_role" jdbcType="INTEGER" property="userRole" />
   </resultMap>
 </mapper>

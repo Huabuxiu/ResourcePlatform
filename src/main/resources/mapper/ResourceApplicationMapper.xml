@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.project.dao.ResourceApplicationMapper">
+  <resultMap id="BaseResultMap" type="com.company.project.model.ResourceApplication">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="raid" jdbcType="INTEGER" property="raid" />
+    <result column="did" jdbcType="INTEGER" property="did" />
+    <result column="date" jdbcType="TIMESTAMP" property="date" />
+    <result column="rtid" jdbcType="INTEGER" property="rtid" />
+    <result column="uid" jdbcType="INTEGER" property="uid" />
+    <result column="purpose" jdbcType="VARCHAR" property="purpose" />
+    <result column="port" jdbcType="INTEGER" property="port" />
+    <result column="time" jdbcType="INTEGER" property="time" />
+    <result column="operating_system" jdbcType="VARCHAR" property="operatingSystem" />
+    <result column="progress" jdbcType="VARCHAR" property="progress" />
+  </resultMap>
+</mapper>

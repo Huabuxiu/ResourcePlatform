@@ -4,7 +4,7 @@ import com.company.project.core.Service;
 
 
 /**
- * Created by CodeGenerator on 2020/03/15.
+ * Created by CodeGenerator on 2020/04/02.
  */
 public interface DepartmentUserService extends Service<DepartmentUser> {
 

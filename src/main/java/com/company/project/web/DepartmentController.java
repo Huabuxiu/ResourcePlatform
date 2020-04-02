@@ -5,13 +5,12 @@ import com.company.project.model.Department;
 import com.company.project.service.DepartmentService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
 * Created by CodeGenerator on 2020/03/15.
@@ -23,9 +22,13 @@ public class DepartmentController {
     private DepartmentService departmentService;
 
     @PostMapping("/add")
-    public Result add(Department department) {
+    public Result add(@RequestBody Map<String,String> data) {
+        Department department = new Department();
+        department.setName(data.get("name"));
+        department.setIntroduce(data.get("introduce"));
+        department.setRegTime(new Date());
         departmentService.save(department);
-        return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genSuccessResult("部门新增成功");
     }
 
     @PostMapping("/delete")

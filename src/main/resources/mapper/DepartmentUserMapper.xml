@@ -5,6 +5,7 @@
     <!--
       WARNING - @mbg.generated
     -->
+    <id column="duid" jdbcType="INTEGER" property="duid" />
     <result column="did" jdbcType="INTEGER" property="did" />
     <result column="id" jdbcType="INTEGER" property="id" />
   </resultMap>

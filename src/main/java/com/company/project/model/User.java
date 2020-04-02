@@ -24,6 +24,20 @@ public class User {
 
     private String token;
 
+    @Column(name = "user_role")
+    private Integer userRole;
+
+    private Integer state;
+
+
+    public Integer getState() {
+        return state;
+    }
+
+    public void setState(Integer state) {
+        this.state = state;
+    }
+
     /**
      * @return id
      */
@@ -134,5 +148,19 @@ public class User {
      */
     public void setToken(String token) {
         this.token = token;
+    }
+
+    /**
+     * @return user_role
+     */
+    public Integer getUserRole() {
+        return userRole;
+    }
+
+    /**
+     * @param userRole
+     */
+    public void setUserRole(Integer userRole) {
+        this.userRole = userRole;
     }
 }

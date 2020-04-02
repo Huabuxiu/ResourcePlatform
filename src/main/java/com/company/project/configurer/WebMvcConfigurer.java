@@ -7,7 +7,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,11 +20,17 @@ import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 
 import com.company.project.core.Result;
 import com.company.project.core.ResultCode;
+import com.company.project.core.ResultGenerator;
 import com.company.project.core.ServiceException;
+import com.company.project.model.HostHolder;
+import com.company.project.model.User;
+import com.company.project.service.UserService;
+import com.company.project.util.FileUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -33,6 +41,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -45,6 +54,12 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
     private final Logger logger = LoggerFactory.getLogger(WebMvcConfigurer.class);
     @Value("${spring.profiles.active}")
     private String env;//当前激活的配置文件
+
+    @Autowired
+    HostHolder hostHolder;
+
+    @Resource
+    private UserService userService;
 
     //使用阿里 FastJson 作为JSON MessageConverter
     @Override
@@ -108,26 +123,61 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         //接口签名认证拦截器，该签名认证比较简单，实际项目中可以使用Json Web Token或其他更好的方式替代。
-        if (!"dev".equals(env)) { //开发环境忽略签名认证
+        if (!"dev".equals(env)) {
             registry.addInterceptor(new HandlerInterceptorAdapter() {
                 @Override
                 public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-                    //验证签名
-                    boolean pass = validateSign(request);
-                    if (pass) {
+
+                    String token = request.getHeader("X-Token");
+                    //利用session验证,获取token
+                    if (request.getCookies() != null) {
+                        for (Cookie cookie : request.getCookies()) {
+                            logger.info("cookie："+cookie.getName());
+                            if (cookie.getName().equals("Admin-Token")){
+                                token = cookie.getValue();
+                                break;
+                            }
+                            if (cookie.getName().equals("token")){
+                                token = cookie.getValue();
+                                break;
+                            }
+                        }
+                    }
+                    if (token != null) {
+                        logger.info("token:"+token);
+                        User user = userService.findBy("token", token);
+                        if (user == null) {
+                            return false;
+                        }
+                        logger.info("user:"+user.getUsername());
+                        hostHolder.setUser(user);
                         return true;
                     } else {
-                        logger.warn("签名认证失败，请求接口：{}，请求IP：{}，请求参数：{}",
-                                request.getRequestURI(), getIpAddress(request), JSON.toJSONString(request.getParameterMap()));
-
-                        Result result = new Result();
-                        result.setCode(ResultCode.UNAUTHORIZED).setMessage("签名认证失败");
-                        responseResult(response, result);
+                        responseResult(response, ResultGenerator.genFailResult("未登录"));
                         return false;
                     }
                 }
-            });
+            }).addPathPatterns("/**")
+                    .excludePathPatterns("/*/login")
+                    .excludePathPatterns("/fileUpload")
+                    .excludePathPatterns("/*/user_info");
+
+            registry.addInterceptor(new HandlerInterceptorAdapter() {
+                @Override
+                public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+                    super.afterCompletion(request, response, handler, ex);
+                    //执行完清理全局变量
+                    hostHolder.clear();
+                }
+            }).addPathPatterns("/**");
         }
+    }
+
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/image/**")
+                .addResourceLocations("file:"+ FileUtils.PROJECT_PATH+FileUtils.RESOURCES_PATH+"/");
     }
 
     private void responseResult(HttpServletResponse response, Result result) {

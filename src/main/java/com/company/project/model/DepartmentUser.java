@@ -4,10 +4,27 @@ import javax.persistence.*;
 
 @Table(name = "department_user")
 public class DepartmentUser {
+    @Id
+    private Integer duid;
+
     private Integer did;
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    /**
+     * @return duid
+     */
+    public Integer getDuid() {
+        return duid;
+    }
+
+    /**
+     * @param duid
+     */
+    public void setDuid(Integer duid) {
+        this.duid = duid;
+    }
 
     /**
      * @return did
