@@ -3,15 +3,18 @@ import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.DepartmentUser;
 import com.company.project.model.HostHolder;
+import com.company.project.model.MailVo;
 import com.company.project.model.User;
 import com.company.project.service.DepartmentService;
 import com.company.project.service.DepartmentUserService;
 import com.company.project.service.UserService;
+import com.company.project.service.impl.MailService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -30,6 +33,11 @@ public class UserController {
 
     @Resource
     private DepartmentUserService departmentUserService;
+
+    private String PROJECTADDRESS = "http://p2959a9495.goho.co/";
+
+    @Resource
+    MailService mailService;
 
     @Autowired
     HostHolder hostHolder;
@@ -77,13 +85,39 @@ public class UserController {
         user.setToken(token);
         user.seteMail(data.get("e_mail"));
         user.setRegTime(new Date());
+        user.setName(data.get("name"));
+        user.setPhone(data.get("phone"));
         user.setState(0);   //不可用
         userService.save(user);
         DepartmentUser departmentUser = new DepartmentUser();
         departmentUser.setDid( departmentService.findBy("name",data.get("department")).getDid());
         departmentUser.setId(userService.findBy("username",data.get("e_mail")).getId());
         departmentUserService.save(departmentUser);
-        return ResultGenerator.genSuccessResult("注册成功");
+        User admin  = userService.findBy("userRole",2);
+        MailVo mailVo = new MailVo();
+        mailVo.setTo(admin.geteMail());
+        mailVo.setSubject("用户"+user.getName()+"审核");
+        mailVo.setText("有新用户注册，请管理员前往"+PROJECTADDRESS+"user/examine_list 进行审核");
+        mailService.sendMail(mailVo);
+        return ResultGenerator.genSuccessResult().setMessage("注册成功");
+    }
+
+
+
+    @PostMapping("/examine")
+    public Result examine(@RequestBody Map<String,Integer> data) {
+       User user = userService.findById(data.get("id"));
+       user.setState(1);
+       userService.update(user);
+        return ResultGenerator.genSuccessResult().setMessage("用户已审核");
+    }
+
+    @PostMapping("/examine_list")
+    public Result examine_list() {
+        Condition condition = new Condition(User.class);
+        condition.createCriteria().andEqualTo("state",0);
+        List<User> list = userService.findByCondition(condition);
+        return ResultGenerator.genSuccessResult(list);
     }
 
     @PostMapping("/delete")
