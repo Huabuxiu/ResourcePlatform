@@ -18,7 +18,15 @@ public class ResourceType {
     @Column(name = "reg_time")
     private Date regTime;
 
-    private Integer deid;
+    private String file;
+
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
 
     /**
      * @return rtid
@@ -90,17 +98,5 @@ public class ResourceType {
         this.regTime = regTime;
     }
 
-    /**
-     * @return deid
-     */
-    public Integer getDeid() {
-        return deid;
-    }
 
-    /**
-     * @param deid
-     */
-    public void setDeid(Integer deid) {
-        this.deid = deid;
-    }
 }

@@ -9,7 +9,7 @@
     <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
     <result column="introduction" jdbcType="VARCHAR" property="introduction" />
     <result column="image" jdbcType="VARCHAR" property="image" />
+    <result column="file" jdbcType="VARCHAR" property="file" />
     <result column="reg_time" jdbcType="TIMESTAMP" property="regTime" />
-    <result column="deid" jdbcType="INTEGER" property="deid" />
   </resultMap>
 </mapper>

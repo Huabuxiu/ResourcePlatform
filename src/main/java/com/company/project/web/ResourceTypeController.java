@@ -5,13 +5,12 @@ import com.company.project.model.ResourceType;
 import com.company.project.service.ResourceTypeService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
 * Created by CodeGenerator on 2020/03/15.
@@ -23,7 +22,12 @@ public class ResourceTypeController {
     private ResourceTypeService resourceTypeService;
 
     @PostMapping("/add")
-    public Result add(ResourceType resourceType) {
+    public Result add(@RequestBody Map<String,String> data) {
+        ResourceType resourceType = new ResourceType();
+        resourceType.setImage(data.get("imageurl"));
+        resourceType.setIntroduction(data.get("fileurl"));
+        resourceType.setResourceName(data.get("name"));
+        resourceType.setRegTime(new Date());
         resourceTypeService.save(resourceType);
         return ResultGenerator.genSuccessResult();
     }

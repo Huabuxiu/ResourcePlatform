@@ -27,6 +27,7 @@ public class User {
     @Column(name = "user_role")
     private Integer userRole;
 
+
     private Integer state;
 
 
