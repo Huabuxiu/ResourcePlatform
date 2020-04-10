@@ -2,16 +2,18 @@ package com.company.project.web;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.HostInformation;
+import com.company.project.model.ResourceType;
 import com.company.project.service.HostInformationService;
+import com.company.project.service.ResourceTypeService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.sun.org.apache.bcel.internal.generic.I2F;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
 * Created by CodeGenerator on 2020/03/15.
@@ -22,35 +24,55 @@ public class HostInformationController {
     @Resource
     private HostInformationService hostInformationService;
 
+    @Resource
+    private ResourceTypeService resourceTypeService;
+
     @PostMapping("/add")
-    public Result add(HostInformation hostInformation) {
+    public Result add(@RequestBody Map<String,String> data) {
+        ResourceType resourceType = resourceTypeService.findBy("resourceName",data.get("resource_name"));
+        HostInformation hostInformation = new HostInformation();
+        hostInformation.setAddress(data.get("address"));
+        hostInformation.setName(data.get("name"));
+        hostInformation.setPort(Integer.parseInt(data.get("port")));
+        if (resourceType!= null){
+            hostInformation.setRtid(resourceType.getRtid());
+        }else {
+            return ResultGenerator.genFailResult("资源类型不存在");
+        }
+        hostInformation.setRegTime(new Date());
         hostInformationService.save(hostInformation);
-        return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genSuccessResult().setMessage("新增主机信息成功");
     }
 
+
+//    简单删除
     @PostMapping("/delete")
-    public Result delete(@RequestParam Integer id) {
-        hostInformationService.deleteById(id);
+    public Result delete(@RequestBody Map<String,Integer> data) {
+        hostInformationService.deleteById(data.get("hiid"));
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/update")
-    public Result update(HostInformation hostInformation) {
+    public Result update(@RequestBody Map<String,String> data) {
+        ResourceType resourceType = resourceTypeService.findBy("resourceName",data.get("resource_name"));
+        HostInformation hostInformation = hostInformationService.findById(Integer.parseInt(data.get("hiid")));
+        hostInformation.setAddress(data.get("address"));
+        hostInformation.setName(data.get("name"));
+        hostInformation.setPort(Integer.parseInt(data.get("port")));
+        if (resourceType!= null){
+            hostInformation.setRtid(resourceType.getRtid());
+        }else {
+            return ResultGenerator.genFailResult("资源类型不存在");
+        }
+        hostInformation.setRegTime(new Date());
         hostInformationService.update(hostInformation);
-        return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genSuccessResult().setMessage("更新成功");
     }
 
-    @PostMapping("/detail")
-    public Result detail(@RequestParam Integer id) {
-        HostInformation hostInformation = hostInformationService.findById(id);
-        return ResultGenerator.genSuccessResult(hostInformation);
-    }
 
     @PostMapping("/list")
-    public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
-        PageHelper.startPage(page, size);
+    public Result list() {
         List<HostInformation> list = hostInformationService.findAll();
-        PageInfo pageInfo = new PageInfo(list);
-        return ResultGenerator.genSuccessResult(pageInfo);
+        return ResultGenerator.genSuccessResult(list);
     }
 }
