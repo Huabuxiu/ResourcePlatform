@@ -113,6 +113,7 @@ public class UserController {
         departmentUser.setDid( departmentService.findBy("name",data.get("department")).getDid());
         departmentUser.setId(userService.findBy("username",data.get("e_mail")).getId());
         departmentUserService.save(departmentUser);
+        //发送邮件到管理员审核
         User admin  = userService.findBy("userRole",2);
         MailVo mailVo = new MailVo();
         mailVo.setTo(admin.geteMail());

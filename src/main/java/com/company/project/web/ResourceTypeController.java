@@ -25,21 +25,34 @@ public class ResourceTypeController {
     public Result add(@RequestBody Map<String,String> data) {
         ResourceType resourceType = new ResourceType();
         resourceType.setImage(data.get("imageurl"));
-        resourceType.setIntroduction(data.get("fileurl"));
+        resourceType.setIntroduction(data.get("introduction"));
         resourceType.setResourceName(data.get("name"));
+        resourceType.setFile(data.get("fileurl"));
         resourceType.setRegTime(new Date());
         resourceTypeService.save(resourceType);
         return ResultGenerator.genSuccessResult();
     }
 
+//    删除
     @PostMapping("/delete")
-    public Result delete(@RequestParam Integer id) {
-        resourceTypeService.deleteById(id);
+    public Result delete(@RequestBody Map<String,Integer> data) {
+        resourceTypeService.deleteById(data.get("rtid"));
         return ResultGenerator.genSuccessResult();
     }
 
+
     @PostMapping("/update")
-    public Result update(ResourceType resourceType) {
+    public Result update(@RequestBody Map<String,String> data) {
+        ResourceType resourceType = resourceTypeService.findById(Integer.parseInt(data.get("rtid")));
+        if (!data.get("imageurl").equals("")){
+            resourceType.setImage(data.get("imageurl"));
+        }
+        resourceType.setIntroduction(data.get("introduction"));
+        resourceType.setResourceName(data.get("name"));
+        if (!data.get("fileurl").equals("")){
+            resourceType.setFile(data.get("fileurl"));
+        }
+        resourceType.setRegTime(new Date());
         resourceTypeService.update(resourceType);
         return ResultGenerator.genSuccessResult();
     }
@@ -51,10 +64,8 @@ public class ResourceTypeController {
     }
 
     @PostMapping("/list")
-    public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
-        PageHelper.startPage(page, size);
+    public Result list() {
         List<ResourceType> list = resourceTypeService.findAll();
-        PageInfo pageInfo = new PageInfo(list);
-        return ResultGenerator.genSuccessResult(pageInfo);
+        return ResultGenerator.genSuccessResult(list);
     }
 }
