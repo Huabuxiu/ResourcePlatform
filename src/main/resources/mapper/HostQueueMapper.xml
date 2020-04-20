@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.project.dao.HostQueueMapper">
+  <resultMap id="BaseResultMap" type="com.company.project.model.HostQueue">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="hiid" jdbcType="INTEGER" property="hiid" />
+    <result column="rtid" jdbcType="INTEGER" property="rtid" />
+    <result column="queue_size" jdbcType="INTEGER" property="queueSize" />
+    <result column="total_time" jdbcType="INTEGER" property="totalTime" />
+    <result column="total_user" jdbcType="INTEGER" property="totalUser" />
+    <result column="head_time" jdbcType="INTEGER" property="headTime" />
+    <result column="queue_element" jdbcType="LONGVARCHAR" property="queueElement" />
+  </resultMap>
+</mapper>

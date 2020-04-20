@@ -7,8 +7,9 @@
     -->
     <id column="raid" jdbcType="INTEGER" property="raid" />
     <result column="did" jdbcType="INTEGER" property="did" />
-    <result column="date" jdbcType="TIMESTAMP" property="date" />
-    <result column="rtid" jdbcType="INTEGER" property="rtid" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="pass_date" jdbcType="TIMESTAMP" property="passDate" />
+    <result column="hiid" jdbcType="INTEGER" property="hiid" />
     <result column="uid" jdbcType="INTEGER" property="uid" />
     <result column="purpose" jdbcType="VARCHAR" property="purpose" />
     <result column="port" jdbcType="INTEGER" property="port" />

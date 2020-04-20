@@ -98,3 +98,59 @@ CREATE TABLE `host_information` (
                                FOREIGN KEY (rtid) REFERENCES resource_type(`rtid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
+
+DROP TABLE IF EXISTS `resource_application`;
+CREATE TABLE `resource_application` (
+                                    `raid` int(11) NOT NULL AUTO_INCREMENT,
+                                    `did` int(11) NOT NULL ,
+                                    `create_date` datetime NOT NULL,
+                                    `pass_date` datetime ,
+                                    `hiid` int(11) NOT NULL,
+                                    `uid` int(11) NOT NULL,
+                                    `purpose` varchar(255) NOT NULL,
+                                    `port` int(10) NOT NULL,
+                                    `time` int(10) NOT NULL,
+                                    `operating_system` varchar(255) NOT NULL,
+                                    `progress` varchar(255) NOT NULL,
+                                    PRIMARY KEY (`raid`),
+                                    FOREIGN KEY (hiid) REFERENCES host_information(`hiid`),
+                                    FOREIGN KEY (uid) REFERENCES user(`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+alter table user add column  user_role int(11) NOT NULL ;
+DROP TABLE IF EXISTS `faile`;
+CREATE TABLE `faile`(
+                        `raid` int(11) NOT NULL ,
+                        `reason` varchar(255) NOT NULL,
+                        PRIMARY KEY (`raid`),
+                        FOREIGN KEY (raid) REFERENCES resource_application(`raid`)
+)ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+alter table department_user add column  duid  int(11) auto_increment PRIMARY KEY ;
+
+alter table resource_type add column  file VARCHAR(255)  NOT NULL ;
+
+DROP TABLE IF EXISTS `host_queue`;
+CREATE TABLE `host_queue`(
+                        `hiid` int(11) NOT NULL ,
+                        `rtid` int(11) NOT NULL ,
+                        `queue_size` int(11) NOT NULL ,
+                        `queue_element` longtext,
+                        `total_time` int(11) NOT NULL ,
+                        `total_user` int(11) NOT NULL ,
+                        `head_time` int(11) NOT NULL ,
+                        PRIMARY KEY (`hiid`),
+                        FOREIGN KEY (`hiid`) REFERENCES host_information(`hiid`),
+                        FOREIGN KEY (`rtid`) REFERENCES resource_type(`rtid`)
+)ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `application_user`;
+CREATE TABLE `application_user`(
+                             `raid` int(11) NOT NULL ,
+                             `username` varchar(255) NOT NULL,
+                             `password` varchar(255) NOT NULL,
+                             `state` varchar(255) NOT NULL,
+                             PRIMARY KEY (`raid`),
+                             FOREIGN KEY (`raid`) REFERENCES resource_application(`raid`)
+)ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+

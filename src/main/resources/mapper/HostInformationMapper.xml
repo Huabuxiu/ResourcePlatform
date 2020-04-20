@@ -10,6 +10,6 @@
     <result column="reg_time" jdbcType="TIMESTAMP" property="regTime" />
     <result column="rtid" jdbcType="INTEGER" property="rtid" />
     <result column="address" jdbcType="VARCHAR" property="address" />
-    <result column="port" jdbcType="INTEGER" property="port" />
+    <result column="port" jdbcType="VARCHAR" property="port" />
   </resultMap>
 </mapper>

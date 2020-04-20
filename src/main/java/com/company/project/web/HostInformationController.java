@@ -19,7 +19,7 @@ import java.util.Map;
 * Created by CodeGenerator on 2020/03/15.
 */
 @RestController
-@RequestMapping("/host/information")
+@RequestMapping("/host_information")
 public class HostInformationController {
     @Resource
     private HostInformationService hostInformationService;
@@ -32,8 +32,8 @@ public class HostInformationController {
         ResourceType resourceType = resourceTypeService.findBy("resourceName",data.get("resource_name"));
         HostInformation hostInformation = new HostInformation();
         hostInformation.setAddress(data.get("address"));
-        hostInformation.setName(data.get("name"));
-        hostInformation.setPort(Integer.parseInt(data.get("port")));
+        hostInformation.setName(data.get("host_name"));
+        hostInformation.setPort(data.get("port"));
         if (resourceType!= null){
             hostInformation.setRtid(resourceType.getRtid());
         }else {
@@ -57,8 +57,8 @@ public class HostInformationController {
         ResourceType resourceType = resourceTypeService.findBy("resourceName",data.get("resource_name"));
         HostInformation hostInformation = hostInformationService.findById(Integer.parseInt(data.get("hiid")));
         hostInformation.setAddress(data.get("address"));
-        hostInformation.setName(data.get("name"));
-        hostInformation.setPort(Integer.parseInt(data.get("port")));
+        hostInformation.setName(data.get("host_name"));
+        hostInformation.setPort(data.get("port"));
         if (resourceType!= null){
             hostInformation.setRtid(resourceType.getRtid());
         }else {

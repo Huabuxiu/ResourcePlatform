@@ -1,8 +1,8 @@
 package com.company.project.web;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
-import com.company.project.model.ResourceApplication;
-import com.company.project.service.ResourceApplicationService;
+import com.company.project.model.HostQueue;
+import com.company.project.service.HostQueueService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,39 +17,39 @@ import java.util.List;
 * Created by CodeGenerator on 2020/04/20.
 */
 @RestController
-@RequestMapping("/resource/application")
-public class ResourceApplicationController {
+@RequestMapping("/host/queue")
+public class HostQueueController {
     @Resource
-    private ResourceApplicationService resourceApplicationService;
+    private HostQueueService hostQueueService;
 
     @PostMapping("/add")
-    public Result add(ResourceApplication resourceApplication) {
-        resourceApplicationService.save(resourceApplication);
+    public Result add(HostQueue hostQueue) {
+        hostQueueService.save(hostQueue);
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/delete")
     public Result delete(@RequestParam Integer id) {
-        resourceApplicationService.deleteById(id);
+        hostQueueService.deleteById(id);
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/update")
-    public Result update(ResourceApplication resourceApplication) {
-        resourceApplicationService.update(resourceApplication);
+    public Result update(HostQueue hostQueue) {
+        hostQueueService.update(hostQueue);
         return ResultGenerator.genSuccessResult();
     }
 
     @PostMapping("/detail")
     public Result detail(@RequestParam Integer id) {
-        ResourceApplication resourceApplication = resourceApplicationService.findById(id);
-        return ResultGenerator.genSuccessResult(resourceApplication);
+        HostQueue hostQueue = hostQueueService.findById(id);
+        return ResultGenerator.genSuccessResult(hostQueue);
     }
 
     @PostMapping("/list")
     public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
         PageHelper.startPage(page, size);
-        List<ResourceApplication> list = resourceApplicationService.findAll();
+        List<HostQueue> list = hostQueueService.findAll();
         PageInfo pageInfo = new PageInfo(list);
         return ResultGenerator.genSuccessResult(pageInfo);
     }

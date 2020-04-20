@@ -28,15 +28,24 @@ public class DepartmentController {
         department.setIntroduce(data.get("introduce"));
         department.setRegTime(new Date());
         departmentService.save(department);
-        return ResultGenerator.genSuccessResult("部门新增成功");
+        return ResultGenerator.genSuccessResult().setMessage("部门新增成功");
+    }
+
+    @PostMapping("/update")
+    public Result update(@RequestBody Map<String,String> data) {
+        Department department = departmentService.findById(Integer.parseInt(data.get("did")));
+        department.setName(data.get("name"));
+        department.setIntroduce(data.get("introduce"));
+        department.setRegTime(new Date());
+        departmentService.update(department);
+        return ResultGenerator.genSuccessResult().setMessage("部门更新成功");
     }
 
     @PostMapping("/delete")
     public Result delete(@RequestBody Map<String,Integer> data) {
         departmentService.deleteById(data.get("did"));
-        return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genSuccessResult().setMessage("删除成功");
     }
-
 
     @PostMapping("/list")
     public Result list() {

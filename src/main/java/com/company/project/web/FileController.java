@@ -27,9 +27,9 @@ public class FileController {
         log.info("fileUpload :"+file.getOriginalFilename());
         if (FileUtils.upload(file,file.getOriginalFilename())){
             //上传成功
-            return ResultGenerator.genSuccessResult("http://295uq99495.wicp.vip/image/"+file.getOriginalFilename());
+            return ResultGenerator.genSuccessResult("http://p2959a9495.goho.co/image/"+file.getOriginalFilename());
         }else {
-            return ResultGenerator.genFailResult("失败");
+            return ResultGenerator.genFailResult("上传失败");
         }
     }
 

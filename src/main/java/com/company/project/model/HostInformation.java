@@ -17,7 +17,7 @@ public class HostInformation {
 
     private String address;
 
-    private Integer port;
+    private String port;
 
     /**
      * @return hiid
@@ -89,17 +89,11 @@ public class HostInformation {
         this.address = address;
     }
 
-    /**
-     * @return port
-     */
-    public Integer getPort() {
+    public String getPort() {
         return port;
     }
 
-    /**
-     * @param port
-     */
-    public void setPort(Integer port) {
+    public void setPort(String port) {
         this.port = port;
     }
 }

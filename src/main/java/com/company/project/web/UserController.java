@@ -1,10 +1,7 @@
 package com.company.project.web;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
-import com.company.project.model.DepartmentUser;
-import com.company.project.model.HostHolder;
-import com.company.project.model.MailVo;
-import com.company.project.model.User;
+import com.company.project.model.*;
 import com.company.project.service.DepartmentService;
 import com.company.project.service.DepartmentUserService;
 import com.company.project.service.UserService;
@@ -63,7 +60,7 @@ public class UserController {
 
 
 //用户信息
-    @PostMapping("/info")
+    @PostMapping("/user_info")
     public Result user_info(@RequestBody Map<String,String> data) {
         User user = userService.findBy("token", data.get("token"));
         if (user == null) {
@@ -128,16 +125,16 @@ public class UserController {
     @PostMapping("/examine")
     public Result examine(@RequestBody Map<String,String> data) {
        User user = userService.findById(Integer.valueOf(data.get("id")));
-       user.setState(1);
-       userService.update(user);
         MailVo mailVo = new MailVo();
         mailVo.setTo(user.geteMail());
         mailVo.setSubject("账户审核结果");
         if (data.get("result").equals("pass")){
+            user.setState(1);
             mailVo.setText("用户审核已经通过");
         }else {
             mailVo.setText("用户审核未通过"+"理由是"+data.get("reason"));
         }
+        userService.update(user);
         mailService.sendMail(mailVo);
         return ResultGenerator.genSuccessResult().setMessage("用户已审核");
     }
@@ -145,10 +142,15 @@ public class UserController {
 //    管理员审核用户列表
     @PostMapping("/examine_list")
     public Result examine_list() {
+        User admin = hostHolder.getUser();
+        if (admin.getUserRole() != 2){
+            return ResultGenerator.genFailResult("管理员才能访问这个页面");
+        }
         Condition condition = new Condition(User.class);
         condition.createCriteria().andEqualTo("state",0);
         List<User> list = userService.findByCondition(condition);
-        return ResultGenerator.genSuccessResult(list);
+        List<UserVo> voList = userService.getUserVoList(list);
+        return ResultGenerator.genSuccessResult(voList);
     }
 
     @PostMapping("/delete")
@@ -202,7 +204,7 @@ public class UserController {
     }
 
     @PostMapping("/list")
-    public Result list(@RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "0") Integer size) {
+    public Result list() {
         List<User> list = userService.findAll();
         return ResultGenerator.genSuccessResult(list);
     }

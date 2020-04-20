@@ -4,7 +4,7 @@ import com.company.project.core.Service;
 
 
 /**
- * Created by CodeGenerator on 2020/03/31.
+ * Created by CodeGenerator on 2020/04/20.
  */
 public interface ResourceApplicationService extends Service<ResourceApplication> {
 

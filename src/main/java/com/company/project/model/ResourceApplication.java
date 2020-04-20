@@ -10,9 +10,13 @@ public class ResourceApplication {
 
     private Integer did;
 
-    private Date date;
+    @Column(name = "create_date")
+    private Date createDate;
 
-    private Integer rtid;
+    @Column(name = "pass_date")
+    private Date passDate;
+
+    private Integer hiid;
 
     private Integer uid;
 
@@ -56,31 +60,45 @@ public class ResourceApplication {
     }
 
     /**
-     * @return date
+     * @return create_date
      */
-    public Date getDate() {
-        return date;
+    public Date getCreateDate() {
+        return createDate;
     }
 
     /**
-     * @param date
+     * @param createDate
      */
-    public void setDate(Date date) {
-        this.date = date;
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
     }
 
     /**
-     * @return rtid
+     * @return pass_date
      */
-    public Integer getRtid() {
-        return rtid;
+    public Date getPassDate() {
+        return passDate;
     }
 
     /**
-     * @param rtid
+     * @param passDate
      */
-    public void setRtid(Integer rtid) {
-        this.rtid = rtid;
+    public void setPassDate(Date passDate) {
+        this.passDate = passDate;
+    }
+
+    /**
+     * @return hiid
+     */
+    public Integer getHiid() {
+        return hiid;
+    }
+
+    /**
+     * @param hiid
+     */
+    public void setHiid(Integer hiid) {
+        this.hiid = hiid;
     }
 
     /**

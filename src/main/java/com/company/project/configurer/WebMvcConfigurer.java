@@ -52,7 +52,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
 
     private final Logger logger = LoggerFactory.getLogger(WebMvcConfigurer.class);
-    @Value("${spring.profiles.active}")
+    @Value("${spring.profiles.active}1")
     private String env;//当前激活的配置文件
 
     @Autowired
@@ -159,7 +159,10 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
                 }
             }).addPathPatterns("/**")
                     .excludePathPatterns("/*/login")
+                    .excludePathPatterns("/*/logon")
                     .excludePathPatterns("/fileUpload")
+                    .excludePathPatterns("/image/*")
+                    .excludePathPatterns("/department/*")
                     .excludePathPatterns("/*/user_info");
 
             registry.addInterceptor(new HandlerInterceptorAdapter() {

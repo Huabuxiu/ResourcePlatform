@@ -16,7 +16,7 @@ import java.util.Map;
 * Created by CodeGenerator on 2020/03/15.
 */
 @RestController
-@RequestMapping("/resource/type")
+@RequestMapping("/resource_type")
 public class ResourceTypeController {
     @Resource
     private ResourceTypeService resourceTypeService;
@@ -24,44 +24,39 @@ public class ResourceTypeController {
     @PostMapping("/add")
     public Result add(@RequestBody Map<String,String> data) {
         ResourceType resourceType = new ResourceType();
-        resourceType.setImage(data.get("imageurl"));
+        resourceType.setImage(data.get("image_url"));
         resourceType.setIntroduction(data.get("introduction"));
-        resourceType.setResourceName(data.get("name"));
-        resourceType.setFile(data.get("fileurl"));
+        resourceType.setResourceName(data.get("resource_name"));
+        resourceType.setFile(data.get("file_url"));
         resourceType.setRegTime(new Date());
         resourceTypeService.save(resourceType);
-        return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genSuccessResult().setMessage("新增资源类型成功");
     }
 
 //    删除
     @PostMapping("/delete")
     public Result delete(@RequestBody Map<String,Integer> data) {
         resourceTypeService.deleteById(data.get("rtid"));
-        return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genSuccessResult().setMessage("删除成功");
     }
 
 
     @PostMapping("/update")
     public Result update(@RequestBody Map<String,String> data) {
         ResourceType resourceType = resourceTypeService.findById(Integer.parseInt(data.get("rtid")));
-        if (!data.get("imageurl").equals("")){
-            resourceType.setImage(data.get("imageurl"));
+        if (!data.get("image_url").equals("")){
+            resourceType.setImage(data.get("image_url"));
         }
         resourceType.setIntroduction(data.get("introduction"));
-        resourceType.setResourceName(data.get("name"));
-        if (!data.get("fileurl").equals("")){
-            resourceType.setFile(data.get("fileurl"));
+        resourceType.setResourceName(data.get("resource_name"));
+        if (!data.get("file_url").equals("")){
+            resourceType.setFile(data.get("file_url"));
         }
         resourceType.setRegTime(new Date());
         resourceTypeService.update(resourceType);
-        return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genSuccessResult().setMessage("更新成功");
     }
 
-    @PostMapping("/detail")
-    public Result detail(@RequestParam Integer id) {
-        ResourceType resourceType = resourceTypeService.findById(id);
-        return ResultGenerator.genSuccessResult(resourceType);
-    }
 
     @PostMapping("/list")
     public Result list() {
