@@ -1,5 +1,7 @@
 package com.company.project.model;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.Date;
 import javax.persistence.*;
 
@@ -22,9 +24,19 @@ public class ResourceApplication {
 
     private String purpose;
 
-    private Integer port;
+    private String port;
 
     private Integer time;
+
+    public Integer getRtid() {
+        return rtid;
+    }
+
+    public void setRtid(Integer rtid) {
+        this.rtid = rtid;
+    }
+
+    private Integer rtid;
 
     @Column(name = "operating_system")
     private String operatingSystem;
@@ -129,17 +141,12 @@ public class ResourceApplication {
         this.purpose = purpose;
     }
 
-    /**
-     * @return port
-     */
-    public Integer getPort() {
+
+    public String getPort() {
         return port;
     }
 
-    /**
-     * @param port
-     */
-    public void setPort(Integer port) {
+    public void setPort(String port) {
         this.port = port;
     }
 

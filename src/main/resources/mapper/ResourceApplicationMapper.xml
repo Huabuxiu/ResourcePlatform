@@ -12,9 +12,24 @@
     <result column="hiid" jdbcType="INTEGER" property="hiid" />
     <result column="uid" jdbcType="INTEGER" property="uid" />
     <result column="purpose" jdbcType="VARCHAR" property="purpose" />
-    <result column="port" jdbcType="INTEGER" property="port" />
+    <result column="port" jdbcType="VARCHAR" property="port" />
     <result column="time" jdbcType="INTEGER" property="time" />
+    <result column="rtid" jdbcType="INTEGER" property="rtid" />
     <result column="operating_system" jdbcType="VARCHAR" property="operatingSystem" />
     <result column="progress" jdbcType="VARCHAR" property="progress" />
   </resultMap>
+
+  <select id="getResourceApplication" parameterType="java.util.Date" resultMap="BaseResultMap">
+     select * from resource_application where create_date = #{createDate}
+  </select>
+
+  <insert id="insertResourceApplication" parameterType="com.company.project.model.ResourceApplication" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="raid">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into resource_application(
+    did, create_date, hiid, uid, purpose, port, time, rtid, operating_system, progress)
+    VALUES (#{did},#{createDate},#{hiid},#{uid},#{purpose},#{port},#{time},#{rtid},#{operatingSystem},#{progress})
+  </insert>
+
 </mapper>

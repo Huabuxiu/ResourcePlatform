@@ -2,10 +2,7 @@ package com.company.project.service.impl;
 
 import com.company.project.dao.DepartmentUserMapper;
 import com.company.project.dao.UserMapper;
-import com.company.project.model.Department;
-import com.company.project.model.DepartmentUser;
-import com.company.project.model.User;
-import com.company.project.model.UserVo;
+import com.company.project.model.*;
 import com.company.project.service.DepartmentService;
 import com.company.project.service.DepartmentUserService;
 import com.company.project.service.UserService;
@@ -40,10 +37,19 @@ public class UserServiceImpl extends AbstractService<User> implements UserServic
 
         for (User ele :
                 list) {
-            UserVo vo = new UserVo(ele);
-            vo.setDepartment(departmentService.findById(departmentUserService.findBy("id",ele.getId()).getDid()).getName());
-            voList.add(vo);
+            if (ele.getUserRole() == 1 && ele.getState() == 1){//过滤掉管理员 和 未审核人员
+                UserVo vo = new UserVo(ele);
+                vo.setDepartment(departmentService.findById(departmentUserService.findBy("id", ele.getId()).getDid()).getName());
+                voList.add(vo);
+            }
         }
         return voList;
+    }
+
+    @Override
+    public UserVoTow getUserVo(User user) {
+        UserVoTow userVo = new UserVoTow(user);
+        userVo.setDepartment(departmentService.findById(departmentUserService.findBy("id",user.getId()).getDid()).getName());
+        return userVo;
     }
 }

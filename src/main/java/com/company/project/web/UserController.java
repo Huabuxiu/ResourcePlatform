@@ -64,7 +64,7 @@ public class UserController {
     public Result user_info(@RequestBody Map<String,String> data) {
         User user = userService.findBy("token", data.get("token"));
         if (user == null) {
-            return ResultGenerator.genFailResult("用户错误");
+            return ResultGenerator.genFailResult("用户不存在");
         }
         Map<String, Object> returnMap = new HashMap<>();
         returnMap.put("uid", user.getId());
@@ -80,7 +80,7 @@ public class UserController {
     public Result logout() {
         User user = hostHolder.getUser();
         if (user == null){
-            return ResultGenerator.genFailResult("用户名不存在");
+            return ResultGenerator.genFailResult("用户不存在");
         }
         return ResultGenerator.genSuccessResult().setMessage("logout");
     }
@@ -124,17 +124,18 @@ public class UserController {
 //管理员审核用户
     @PostMapping("/examine")
     public Result examine(@RequestBody Map<String,String> data) {
-       User user = userService.findById(Integer.valueOf(data.get("id")));
+        User user = userService.findById(Integer.valueOf(data.get("id")));
         MailVo mailVo = new MailVo();
         mailVo.setTo(user.geteMail());
         mailVo.setSubject("账户审核结果");
         if (data.get("result").equals("pass")){
             user.setState(1);
             mailVo.setText("用户审核已经通过");
+            userService.update(user);
         }else {
             mailVo.setText("用户审核未通过"+"理由是"+data.get("reason"));
+            userService.deleteById(user.getId());
         }
-        userService.update(user);
         mailService.sendMail(mailVo);
         return ResultGenerator.genSuccessResult().setMessage("用户已审核");
     }
@@ -144,7 +145,7 @@ public class UserController {
     public Result examine_list() {
         User admin = hostHolder.getUser();
         if (admin.getUserRole() != 2){
-            return ResultGenerator.genFailResult("管理员才能访问这个页面");
+            return ResultGenerator.genFailResult("需要管理员权限");
         }
         Condition condition = new Condition(User.class);
         condition.createCriteria().andEqualTo("state",0);
@@ -160,8 +161,8 @@ public class UserController {
     }
 
 //    修改密码
-    @PostMapping("/chage_password")
-    public Result chage_password(@RequestBody Map<String,String> data) {
+    @PostMapping("/change_password")
+    public Result change_password(@RequestBody Map<String,String> data) {
         User user = userService.findById(Integer.valueOf(data.get("id")));
         if (!user.getPassword().equals(data.get("old_passworld"))){
             return ResultGenerator.genFailResult("旧密码错误");
@@ -169,7 +170,7 @@ public class UserController {
             user.setPassword(data.get("new_password"));
             userService.update(user);
         }
-        return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genSuccessResult().setMessage("修改密码成功");
     }
 
 
@@ -183,7 +184,8 @@ public class UserController {
         MailVo mailVo = new MailVo();
         mailVo.setTo(user.geteMail());
         mailVo.setSubject("找回密码");
-        mailVo.setText("请点击下面链接去找回密码"+PROJECTADDRESS+"/user/goto_find_password?e_mail="+user.geteMail());
+        mailVo.setText("请点击下面链接去找回密码"+PROJECTADDRESS+"user/goto_find_password?e_mail="+user.geteMail());
+        mailService.sendMail(mailVo);
         return ResultGenerator.genSuccessResult();
     }
 
@@ -191,21 +193,28 @@ public class UserController {
     @PostMapping("/goto_find_password_back")
     public Result goto_find_password_back(@RequestBody Map<String,String> data) {
         User user = userService.findBy("eMail",data.get("e_mail"));
+        if (user == null){
+            return ResultGenerator.genFailResult("账户不存在");
+        }
         user.setPassword(data.get("password"));
         userService.update(user);
-       return ResultGenerator.genSuccessResult();
+       return ResultGenerator.genSuccessResult().setMessage("密码已找回");
     }
 
 
     @PostMapping("/detail")
-    public Result detail(@RequestParam Integer id) {
-        User user = userService.findById(id);
-        return ResultGenerator.genSuccessResult(user);
+    public Result detail(@RequestBody Map<String,Integer> data) {
+        User user = userService.findById(data.get("id"));
+        if (user == null ){
+            return ResultGenerator.genFailResult("用户不存在");
+        }
+        return ResultGenerator.genSuccessResult(userService.getUserVo(user));
     }
 
     @PostMapping("/list")
     public Result list() {
         List<User> list = userService.findAll();
-        return ResultGenerator.genSuccessResult(list);
+        List<UserVo> voList = userService.getUserVoList(list);
+        return ResultGenerator.genSuccessResult(voList);
     }
 }

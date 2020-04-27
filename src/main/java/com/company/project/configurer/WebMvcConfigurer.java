@@ -159,6 +159,8 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
                 }
             }).addPathPatterns("/**")
                     .excludePathPatterns("/*/login")
+                    .excludePathPatterns("/*/find_password")
+                    .excludePathPatterns("/*/goto_find_password_back")
                     .excludePathPatterns("/*/logon")
                     .excludePathPatterns("/fileUpload")
                     .excludePathPatterns("/image/*")
@@ -181,6 +183,7 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/image/**")
                 .addResourceLocations("file:"+ FileUtils.PROJECT_PATH+FileUtils.RESOURCES_PATH+"/");
+//                .addResourceLocations("file://"+ FileUtils.PROJECT_PATH+FileUtils.RESOURCES_PATH+"/");
     }
 
     private void responseResult(HttpServletResponse response, Result result) {

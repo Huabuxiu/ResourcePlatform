@@ -11,6 +11,7 @@ public class FileUtils {
 
 
     public static final String PROJECT_PATH = System.getProperty("user.dir");//项目在硬盘上的基础路径
+//    public static final String RESOURCES_PATH = "/home/image";//资源文件路径
     public static final String RESOURCES_PATH = "/src/main/resources/image";//资源文件路径
 
     /**

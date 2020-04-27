@@ -34,6 +34,9 @@ public class DepartmentController {
     @PostMapping("/update")
     public Result update(@RequestBody Map<String,String> data) {
         Department department = departmentService.findById(Integer.parseInt(data.get("did")));
+        if (department== null){
+            return ResultGenerator.genFailResult("部门不存在");
+        }
         department.setName(data.get("name"));
         department.setIntroduce(data.get("introduce"));
         department.setRegTime(new Date());

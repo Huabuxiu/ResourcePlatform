@@ -14,6 +14,7 @@ public class SimpleCORSFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) res;
 
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:9527");
+//        response.setHeader("Access-Control-Allow-Origin", "http://localhost:9528");
 
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, HEAD");
 

@@ -1,10 +1,12 @@
 package com.company.project.model;
 
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Date;
-import javax.persistence.*;
 
 @Table(name = "host_information")
-public class HostInformation {
+public class HostInformationVo {
     @Id
     private Integer hiid;
 
@@ -13,11 +15,20 @@ public class HostInformation {
     @Column(name = "reg_time")
     private Date regTime;
 
-    private Integer rtid;
+    private String resourceType;
 
     private String address;
 
     private String port;
+
+
+    public HostInformationVo(HostInformation hostInformation) {
+        this.hiid = hostInformation.getHiid();
+        this.name = hostInformation.getName();
+        this.regTime = hostInformation.getRegTime();
+        this.address = hostInformation.getAddress();
+        this.port = hostInformation.getPort();
+    }
 
     /**
      * @return hiid
@@ -61,18 +72,13 @@ public class HostInformation {
         this.regTime = regTime;
     }
 
-    /**
-     * @return rtid
-     */
-    public Integer getRtid() {
-        return rtid;
+
+    public String getResourceType() {
+        return resourceType;
     }
 
-    /**
-     * @param rtid
-     */
-    public void setRtid(Integer rtid) {
-        this.rtid = rtid;
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
     }
 
     /**
@@ -95,17 +101,5 @@ public class HostInformation {
 
     public void setPort(String port) {
         this.port = port;
-    }
-
-    @Override
-    public String toString() {
-        return "HostInformation{" +
-                "hiid=" + hiid +
-                ", name='" + name + '\'' +
-                ", regTime=" + regTime +
-                ", rtid=" + rtid +
-                ", address='" + address + '\'' +
-                ", port='" + port + '\'' +
-                '}';
     }
 }

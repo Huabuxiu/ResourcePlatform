@@ -44,6 +44,9 @@ public class ResourceTypeController {
     @PostMapping("/update")
     public Result update(@RequestBody Map<String,String> data) {
         ResourceType resourceType = resourceTypeService.findById(Integer.parseInt(data.get("rtid")));
+        if (resourceType == null){
+            return ResultGenerator.genFailResult("资源类型不存在");
+        }
         if (!data.get("image_url").equals("")){
             resourceType.setImage(data.get("image_url"));
         }

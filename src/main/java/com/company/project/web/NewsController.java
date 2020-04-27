@@ -2,6 +2,7 @@ package com.company.project.web;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.News;
+import com.company.project.model.NewsVo;
 import com.company.project.service.NewsService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -40,11 +41,14 @@ public class NewsController {
     @PostMapping("/update")
     public Result update(@RequestBody Map<String,String> data) {
         News news = newsService.findById(Integer.parseInt(data.get("nid")));
+        if (news == null ){
+            return ResultGenerator.genFailResult("公告不存在");
+        }
         news.setRegTime(new Date());
         news.setTitle(data.get("text_title"));
         news.setHtml(data.get("Html"));
         newsService.update(news);
-        return ResultGenerator.genSuccessResult();
+        return ResultGenerator.genSuccessResult().setMessage("修改成功");
     }
 
     @PostMapping("/detail")
@@ -56,6 +60,7 @@ public class NewsController {
     @PostMapping("/list")
     public Result list(){
         List<News> list = newsService.findAll();
-        return ResultGenerator.genSuccessResult(list);
+        List<NewsVo> voList = newsService.getVoList(list);
+        return ResultGenerator.genSuccessResult(voList);
     }
 }
