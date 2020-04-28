@@ -46,4 +46,9 @@ public class HostInformationServiceImpl extends AbstractService<HostInformation>
     public List<HostInformation> getHadoopList() {
         return hostInformationMapper.getHadoopList();
     }
+
+    @Override
+    public int insertHostInformation(HostInformation hostInformation) {
+        return hostInformationMapper.insertHostInformation(hostInformation);
+    }
 }

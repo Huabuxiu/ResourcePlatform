@@ -13,4 +13,7 @@ public interface HostInformationMapper extends Mapper<HostInformation> {
             "    where  resources.resource_type.rtid = resources.host_information.rtid\n" +
             "      AND resources.resource_type.resource_name = 'Hadoop大数据处理平台（20台服务器集群）';")
     public List<HostInformation> getHadoopList();
+
+
+    public Integer insertHostInformation(HostInformation hostInformation);
 }

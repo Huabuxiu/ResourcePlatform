@@ -1,10 +1,13 @@
 package com.company.project.web;
+import com.alibaba.fastjson.JSON;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.HostInformation;
 import com.company.project.model.HostInformationVo;
+import com.company.project.model.HostQueue;
 import com.company.project.model.ResourceType;
 import com.company.project.service.HostInformationService;
+import com.company.project.service.HostQueueService;
 import com.company.project.service.ResourceTypeService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -12,9 +15,7 @@ import com.sun.org.apache.bcel.internal.generic.I2F;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
 * Created by CodeGenerator on 2020/03/15.
@@ -26,12 +27,16 @@ public class HostInformationController {
     private HostInformationService hostInformationService;
 
     @Resource
+    private HostQueueService hostQueueService;
+
+    @Resource
     private ResourceTypeService resourceTypeService;
 
     @PostMapping("/add")
     public Result add(@RequestBody Map<String,String> data) {
         ResourceType resourceType = resourceTypeService.findBy("resourceName",data.get("resource_name"));
         HostInformation hostInformation = new HostInformation();
+        HostQueue hostQueue = new HostQueue();
         hostInformation.setAddress(data.get("address"));
         hostInformation.setName(data.get("host_name"));
         if (resourceType!= null){
@@ -48,7 +53,16 @@ public class HostInformationController {
             hostInformation.setPort(hostInformation.getPort()+","+data.get("port"));
         }
         hostInformation.setRegTime(new Date());
-        hostInformationService.save(hostInformation);
+        hostInformationService.insertHostInformation(hostInformation);  //插入并返回主键
+        hostQueue.setHiid(hostInformation.getHiid());
+        Queue<Integer> timequeue = new LinkedList<>();
+        hostQueue.setQueueElement(JSON.toJSONString(timequeue));
+        hostQueue.setRtid(hostInformation.getRtid());
+        hostQueue.setHeadTime(0);
+        hostQueue.setQueueSize(0);
+        hostQueue.setTotalTime(0);
+        hostQueue.setTotalUser(0);
+        hostQueueService.save(hostQueue);
         return ResultGenerator.genSuccessResult().setMessage("新增主机信息成功");
     }
 

@@ -15,4 +15,6 @@ public interface HostInformationService extends Service<HostInformation> {
 
     public List<HostInformation> getHadoopList();
 
+    public int insertHostInformation(HostInformation hostInformation);
+
 }

@@ -12,4 +12,13 @@
     <result column="address" jdbcType="VARCHAR" property="address" />
     <result column="port" jdbcType="VARCHAR" property="port" />
   </resultMap>
+
+
+  <insert id="insertHostInformation" parameterType="com.company.project.model.HostInformation" >
+    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="hiid">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into host_information(name, reg_time, rtid, address, port)
+    VALUES (#{name},#{regTime},#{rtid},#{address},#{port});
+     </insert>
 </mapper>

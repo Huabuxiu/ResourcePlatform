@@ -1,8 +1,12 @@
 package com.company.project.web;
+import com.alibaba.fastjson.JSON;
 import com.company.project.core.Result;
 import com.company.project.core.ResultGenerator;
 import com.company.project.model.*;
 import com.company.project.service.*;
+import com.company.project.service.impl.MailService;
+import com.company.project.util.GPUTimeThread;
+import com.company.project.util.HadoopTimeThread;
 import com.company.project.util.SpringUtil;
 import com.company.project.util.TimeThread;
 import com.github.pagehelper.PageHelper;
@@ -36,6 +40,22 @@ public class ResourceApplicationController {
 
     @Resource
     private ApplicationUserService applicationUserService;
+
+    @Resource
+    private HostQueueService hostQueueService;
+
+    @Resource
+    private UserService userService;
+
+    @Resource
+    private StartTimeService startTimeService;
+
+    @Resource
+    private MailService mailService;
+
+    private Map<Integer,Thread> threadMap = new HashMap<>();
+
+    private static  Integer STIPULATED = 2; //同时最多使用人数
 
     @PostMapping("/add")
     public Result add(@RequestBody Map<String,String> data) {
@@ -122,10 +142,189 @@ public class ResourceApplicationController {
 管理员审核用户申请
  */
     @PostMapping("/examine")
-    public Result examine(@RequestBody Map<String,Integer> data) {
-        TimeThread timeThread =  SpringUtil.getBean(TimeThread.class);
-        timeThread.setCount(5);
-        timeThread.start();
+    public Result examine(@RequestBody Map<String,String> data) {
+        ResourceApplication resourceApplication = resourceApplicationService.findById(Integer.parseInt(data.get("raid")));
+        ResourceType resourceType = resourceTypeService.findById(resourceApplication.getRtid());
+        ApplicationUser applicationUser = applicationUserService.findById(resourceApplication.getRaid());
+        User user = userService.findById(resourceApplication.getUid());
+        MailVo mailVo = new MailVo();
+        mailVo.setSubject("资源审核结果");
+        String mail = "";
+        if (data.get("result").equals("refuse")){   //拒绝申请
+            ResourceApplicationVo vo = resourceApplicationService.getVo(resourceApplication);
+            vo.setRefuse_reason(data.get("refuse_reason"));
+            mail = "资源审核拒绝理由是："+vo.getRefuse_reason();
+            mailVo.setText(mail);
+            mailVo.setTo(user.geteMail());
+            mailService.sendMail(mailVo);
+            return ResultGenerator.genSuccessResult(vo);
+        }else if (data.get("result").equals("pass")){   //通过
+            if(resourceType.getResourceName().equals("Hadoop大数据处理平台（20台服务器集群）")){
+                //第1类型，在主节点上开户
+                Condition hostInformationCondition = new Condition(HostInformation.class);
+                hostInformationCondition.createCriteria().andEqualTo("rtid",resourceApplication.getRaid());
+                List<HostInformation> hostInformations = hostInformationService.findByCondition(hostInformationCondition);
+//                分配主机
+                HostInformation hostInformation = hostInformations.get(new Random().nextInt(hostInformations.size()));
+                resourceApplication.setHiid(hostInformation.getHiid());
+                applicationUser.setState("可用");
+                String password = UUID.randomUUID().toString().replace("-","");
+                applicationUser.setPassword(password);
+                resourceApplication.setPort(hostInformation.getPort());
+                resourceApplication.setPassDate(new Date());
+
+                resourceApplication.setProgress("使用中");
+                resourceApplicationService.update(resourceApplication);
+                applicationUserService.update(applicationUser);
+                //服务端去开通账号
+
+
+                mail = "Hadoop大数据处理平台（20台服务器集群）资源审核通过\n资源申请编号:"+resourceApplication.getRaid()
+                        +"\n主机IP:" + hostInformation.getAddress()
+                        +"\n用户名:"+applicationUser.getUsername()
+                        +"\n密码:"+applicationUser.getPassword();
+                mailVo.setText(mail);
+                mailVo.setTo(user.geteMail());
+                mailService.sendMail(mailVo);
+                //设置计时线程，到时间关闭账号
+                HadoopTimeThread springtemThread = SpringUtil.getBean(HadoopTimeThread.class);
+                HadoopTimeThread timeThread = new HadoopTimeThread();
+
+                timeThread.setResourceApplicationService(springtemThread.getResourceApplicationService());
+                timeThread.setApplicationUserService(springtemThread.getApplicationUserService());
+
+
+                timeThread.setTime(resourceApplication.getTime());  //设置使用时间
+                timeThread.setRaid(resourceApplication.getRaid());
+                timeThread.start();
+                return ResultGenerator.genSuccessResult(resourceApplicationService.getVo(resourceApplication));
+            }
+//            第四类型
+            if(resourceType.getResourceName().equals("浪潮服务器（单台独占使用）")){
+                //第四类型资源开户
+                HostInformation hostInformation = hostInformationService.findById(Integer.parseInt(data.get("hiid")));
+                resourceApplication.setHiid(hostInformation.getHiid());
+                applicationUser.setState("可用");
+                applicationUser.setPassword(data.get("password"));
+                applicationUser.setUsername(data.get("username"));
+                resourceApplication.setPort(hostInformation.getPort());
+                resourceApplication.setPassDate(new Date());
+                resourceApplication.setProgress("使用中");
+                resourceApplicationService.update(resourceApplication);
+                applicationUserService.update(applicationUser);
+                //服务端去开通账号
+                mail = "浪潮服务器（单台独占使用）资源审核通过\n资源申请编号:"+resourceApplication.getRaid()
+                        +"\n主机IP:" + hostInformation.getAddress()
+                        +"\n用户名:"+applicationUser.getUsername()
+                        +"\n密码:"+applicationUser.getPassword();
+                mailVo.setText(mail);
+                mailVo.setTo(user.geteMail());
+                mailService.sendMail(mailVo);
+                HadoopTimeThread springtemThread = SpringUtil.getBean(HadoopTimeThread.class);
+                HadoopTimeThread timeThread = new HadoopTimeThread();
+
+                timeThread.setResourceApplicationService(springtemThread.getResourceApplicationService());
+                timeThread.setApplicationUserService(springtemThread.getApplicationUserService());
+
+
+                timeThread.setTime(resourceApplication.getTime());  //设置使用时间
+                timeThread.setRaid(resourceApplication.getRaid());
+                timeThread.start();
+                return ResultGenerator.genSuccessResult(resourceApplicationService.getVo(resourceApplication));
+            }
+//            第二种类型,四需要排队的类型
+            if(resourceType.getResourceName().equals("GPU服务器（K80高速处理显卡，Linux单机）")
+                    || resourceType.getResourceName().equals("GPU服务器（K80高速处理显卡，Windows单机）")){
+                //先查主机列表,选择最短的
+                Condition hostqueueCondition = new Condition(HostQueue.class);
+                hostqueueCondition.createCriteria().andEqualTo("rtid",resourceApplication.getRtid());
+                hostqueueCondition.orderBy("totalTime").asc();
+                List<HostQueue> hostQueueList = hostQueueService.findByCondition(hostqueueCondition);
+                HostQueue hostQueue = hostQueueList.get(0);
+//                分配主机
+                HostInformation hostInformation = hostInformationService.findById(hostQueue.getHiid());
+                resourceApplication.setHiid(hostInformation.getHiid());
+//                判断入队还是立即执行
+                if (hostQueue.getTotalUser() < STIPULATED) { //少于规定的人数,立即执行
+//                   设置开始使用时间
+                    StartTime startTime = new StartTime();
+                    startTime.setRaid(resourceApplication.getRaid());
+                    startTime.setStarttime(new Date());
+
+                    applicationUser.setState("可用");
+                    applicationUser.setPassword(data.get("password"));
+                    applicationUser.setUsername(data.get("username"));
+                    resourceApplication.setPort(hostInformation.getPort());
+                    resourceApplication.setPassDate(new Date());
+                    resourceApplication.setProgress("使用中");
+
+//                  服务器去开户
+
+                    //总时间和总用户
+                    hostQueue.setTotalTime(hostQueue.getTotalTime()+resourceApplication.getTime());
+                    hostQueue.setTotalUser(hostQueue.getTotalUser()+1);
+
+                    hostQueueService.update(hostQueue);
+                    resourceApplicationService.update(resourceApplication);
+                    applicationUserService.update(applicationUser);
+                    startTimeService.save(startTime);
+
+                    GPUTimeThread SpringThread  = SpringUtil.getBean(GPUTimeThread.class);
+                    GPUTimeThread gpuTimeThread = new GPUTimeThread();
+                    System.out.println(resourceApplication.getRaid() + ":" + gpuTimeThread.getName() );
+//                    设置spring service
+                    gpuTimeThread.setStartTimeService(SpringThread.getStartTimeService());
+                    gpuTimeThread.setResourceApplicationService(SpringThread.getResourceApplicationService());
+                    gpuTimeThread.setHostQueueService(SpringThread.getHostQueueService());
+                    gpuTimeThread.setApplicationUserService(SpringThread.getApplicationUserService());
+
+
+                    gpuTimeThread.setTime(resourceApplication.getTime());  //设置使用时间
+                    gpuTimeThread.setRaid(resourceApplication.getRaid());
+                    gpuTimeThread.setHiid(hostInformation.getHiid());
+                    gpuTimeThread.start();
+                }else { //  排队
+                    Queue<Integer> timeQueue = (Queue<Integer>) JSON.parseObject(hostQueue.getQueueElement(), LinkedList.class);
+                    timeQueue.add(resourceApplication.getRaid());//入队
+
+                    hostQueue.setTotalUser(hostQueue.getTotalUser()+1);
+                    hostQueue.setTotalTime(hostQueue.getTotalTime()+resourceApplication.getTime());
+
+                    hostQueue.setQueueSize(timeQueue.size());
+                    hostQueue.setQueueElement(JSON.toJSONString(timeQueue));
+                    //去服务器开户
+//                    排队进入队尾
+                    applicationUser.setState("禁用");
+                    applicationUser.setPassword(data.get("password"));
+                    applicationUser.setUsername(data.get("username"));
+                    resourceApplication.setPort(hostInformation.getPort());
+                    resourceApplication.setPassDate(new Date());
+                    resourceApplication.setProgress("排队中");
+                    resourceApplicationService.update(resourceApplication);
+                    applicationUserService.update(applicationUser);
+                    hostQueueService.update(hostQueue);
+                }
+
+                if (resourceType.getResourceName().equals("GPU服务器（K80高速处理显卡，Linux单机）") ){
+                    //                    设置邮件信息
+                    mail = "GPU服务器（K80高速处理显卡，Linux单机）资源审核通过\n资源申请编号:"+resourceApplication.getRaid()
+                            +"\n主机IP:" + hostInformation.getAddress()
+                            +"\n用户名:"+applicationUser.getUsername()
+                            +"\n密码:"+applicationUser.getPassword();
+                }else {
+                    mail = "GPU服务器（K80高速处理显卡，Windows单机）资源审核通过\n资源申请编号:"+resourceApplication.getRaid()
+                            +"\n主机IP:" + hostInformation.getAddress()
+                            +"\n用户名:"+applicationUser.getUsername()
+                            +"\n密码:"+applicationUser.getPassword();
+                }
+                mailVo.setText(mail);
+                mailVo.setTo(user.geteMail());
+                mailService.sendMail(mailVo);
+                return ResultGenerator.genSuccessResult(resourceApplicationService.getVo(resourceApplication));
+            }
+
+        }
+
         return ResultGenerator.genSuccessResult();
     }
 

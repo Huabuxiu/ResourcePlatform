@@ -124,9 +124,13 @@ public class ResourceApplicationServiceImpl extends AbstractService<ResourceAppl
                 Date end = addDays(start,ele.getTime());
                 vo.setRemaining_time(daysBetween(new Date(),end));   //剩余天数
             }else { //需要排队的两种
-                Date start  = startTimeService.findBy("raid",ele.getRaid()).getStarttime();
-                Date end = addDays(start,ele.getTime());
-                vo.setRemaining_time(daysBetween(new Date(),end));   //剩余天数
+                if (startTimeService.findBy("raid",ele.getRaid()) == null){
+                    vo.setRemaining_time(ele.getTime());
+                }else {
+                    Date start  = startTimeService.findBy("raid",ele.getRaid()).getStarttime();
+                    Date end = addDays(start,ele.getTime());
+                    vo.setRemaining_time(daysBetween(new Date(),end));   //剩余天数
+                }
             }
         }
         return vo;
