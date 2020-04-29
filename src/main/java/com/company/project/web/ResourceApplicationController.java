@@ -53,6 +53,9 @@ public class ResourceApplicationController {
     @Resource
     private MailService mailService;
 
+    @Resource
+    private FaileService faileService;
+
     private Map<Integer,Thread> threadMap = new HashMap<>();
 
     private static  Integer STIPULATED = 2; //同时最多使用人数
@@ -151,9 +154,15 @@ public class ResourceApplicationController {
         mailVo.setSubject("资源审核结果");
         String mail = "";
         if (data.get("result").equals("refuse")){   //拒绝申请
+            resourceApplication.setProgress("已拒绝");
+            Faile faile = new Faile();
+            faile.setRaid(resourceApplication.getRaid());
+            faile.setReason(data.get("refuse_reason"));
+            faileService.save(faile);
+            resourceApplicationService.update(resourceApplication);
             ResourceApplicationVo vo = resourceApplicationService.getVo(resourceApplication);
             vo.setRefuse_reason(data.get("refuse_reason"));
-            mail = "资源审核拒绝理由是："+vo.getRefuse_reason();
+            mail = "资源审核拒绝理由是：" + vo.getRefuse_reason();
             mailVo.setText(mail);
             mailVo.setTo(user.geteMail());
             mailService.sendMail(mailVo);
@@ -162,10 +171,17 @@ public class ResourceApplicationController {
             if(resourceType.getResourceName().equals("Hadoop大数据处理平台（20台服务器集群）")){
                 //第1类型，在主节点上开户
                 Condition hostInformationCondition = new Condition(HostInformation.class);
-                hostInformationCondition.createCriteria().andEqualTo("rtid",resourceApplication.getRaid());
+                hostInformationCondition.createCriteria().andEqualTo("rtid",resourceApplication.getRtid());
                 List<HostInformation> hostInformations = hostInformationService.findByCondition(hostInformationCondition);
 //                分配主机
-                HostInformation hostInformation = hostInformations.get(new Random().nextInt(hostInformations.size()));
+                HostInformation hostInformation = null;
+                if (hostInformations.size() == 1){
+                     hostInformation = hostInformations.get(0);
+                }else if (hostInformations.size() == 0){
+                     return ResultGenerator.genFailResult("该资源类型暂无主机");
+                }else {
+                    hostInformation = hostInformations.get(new Random().nextInt(hostInformations.size()));
+                }
                 resourceApplication.setHiid(hostInformation.getHiid());
                 applicationUser.setState("可用");
                 String password = UUID.randomUUID().toString().replace("-","");
@@ -252,8 +268,11 @@ public class ResourceApplicationController {
                     startTime.setStarttime(new Date());
 
                     applicationUser.setState("可用");
-                    applicationUser.setPassword(data.get("password"));
-                    applicationUser.setUsername(data.get("username"));
+//                    applicationUser.setPassword(data.get("password"));
+//                    applicationUser.setUsername(data.get("username"));
+
+//                    String password = UUID.randomUUID().toString().replace("-","");
+//                    applicationUser.setPassword(password);
                     resourceApplication.setPort(hostInformation.getPort());
                     resourceApplication.setPassDate(new Date());
                     resourceApplication.setProgress("使用中");
@@ -352,10 +371,97 @@ public class ResourceApplicationController {
         condition.clear();
         condition.createCriteria().andEqualTo("progress","使用中");
         list.addAll(resourceApplicationService.findByCondition(condition));
+        condition.clear();
+        condition.createCriteria().andEqualTo("progress","待审核");
+        list.addAll(resourceApplicationService.findByCondition(condition));
+        condition.clear();
+        condition.createCriteria().andEqualTo("progress","已到期");
+        list.addAll(resourceApplicationService.findByCondition(condition));
         List<ResourceApplicationVo> voList = resourceApplicationService.getVoList(list);
         return ResultGenerator.genSuccessResult(voList);
     }
 
+
+    //管理员申请记录
+    @PostMapping("/rt_list")
+    public Result rt_list(@RequestBody Map<String,Integer> data) {
+        Integer rtid = data.get("rtid");
+        Condition condition = new Condition(ResourceApplication.class);
+        condition.createCriteria().andEqualTo("progress","排队中");
+        condition.and().andEqualTo("rtid",rtid);
+        List<ResourceApplication> list = resourceApplicationService.findByCondition(condition);
+        condition.clear();
+        condition.createCriteria().andEqualTo("progress","使用中");
+        condition.and().andEqualTo("rtid",rtid);
+        list.addAll(resourceApplicationService.findByCondition(condition));
+
+        condition.clear();
+        condition.createCriteria().andEqualTo("progress","待审核");
+        condition.and().andEqualTo("rtid",rtid);
+        list.addAll(resourceApplicationService.findByCondition(condition));
+
+        condition.clear();
+        condition.createCriteria().andEqualTo("progress","已到期");
+        condition.and().andEqualTo("rtid",rtid);
+        list.addAll(resourceApplicationService.findByCondition(condition));
+        List<ResourceApplicationVo> voList = resourceApplicationService.getVoList(list);
+        return ResultGenerator.genSuccessResult(voList);
+    }
+
+
+    //管理员申请记录
+    @PostMapping("/statistics")
+    public Result statistics() {
+        StatisticsVo statisticsVo = new StatisticsVo();
+        Integer waitExamine = 0;
+
+        Integer examined = 0;
+
+        Integer refuse= 0;
+
+
+        Integer Hadoop= 0;
+
+        Integer Linux= 0;
+
+        Integer windows= 0;
+
+        Integer langChao= 0;
+
+        List<ResourceApplication> list = resourceApplicationService.findAll();
+        for (ResourceApplication ele :
+               list ) {
+            ResourceType resourceType = resourceTypeService.findById(ele.getRtid());
+            if (ele.getProgress().equals("审核中")){
+                waitExamine++;
+            }
+            if (ele.getProgress().equals("已拒绝")){
+                refuse++;
+            }
+
+            if (resourceType.getResourceName().equals("Hadoop大数据处理平台（20台服务器集群）")){
+                Hadoop++;
+            }else if (resourceType.getResourceName().equals("GPU服务器（K80高速处理显卡，Linux单机）")){
+                Linux++;
+            }else if (resourceType.getResourceName().equals("GPU服务器（K80高速处理显卡，Windows单机）")){
+                windows++;
+            }else if (resourceType.getResourceName().equals("浪潮服务器（单台独占使用）")){
+                langChao++;
+            }
+        }
+        examined = list.size() - waitExamine;
+
+        statisticsVo.setTotal(list.size());
+        statisticsVo.setUserApplication(list.size());
+        statisticsVo.setWaitExamine(waitExamine);
+        statisticsVo.setRefuse(refuse);
+        statisticsVo.setExamined(examined);
+        statisticsVo.setHadoop(Hadoop);
+        statisticsVo.setLinux(Linux);
+        statisticsVo.setWindows(windows);
+        statisticsVo.setLangChao(langChao);
+        return ResultGenerator.genSuccessResult(statisticsVo);
+    }
 
 
 

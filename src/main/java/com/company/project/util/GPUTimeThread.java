@@ -102,8 +102,12 @@ public class GPUTimeThread extends Thread {
 
             try {
                 synchronized(this) {
-//                wait(time * 60 * 60 * 24  * 1000 ); //运行单位，天
-                    wait(getTime() * 1000); //测试单位，秒级
+                    long times  = time * 60 * 60 * 24;
+                    System.out.println(times);
+                    for (int i = 0; i < 1000 ;i++){
+                        wait(times); //运行单位，天
+                    }
+//                    wait(getTime() * 1000); //测试单位，秒级
                 }
                 //资源到期后的操作
                 ResourceApplication  resourceApplication = resourceApplicationService.findById(getRaid());
