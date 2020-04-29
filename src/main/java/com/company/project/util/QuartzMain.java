@@ -12,20 +12,14 @@ public class QuartzMain {
 
 
     public static void main(String[] args){
-//        List<Integer> queue = new LinkedList<>();
-//        queue.add(1);
-//        queue.add(2);
-//        queue.add(3);
-//        String json = JSON.toJSONString(queue);
-//        System.out.println(json);
-//        Queue<Integer> timeQueue = (Queue<Integer>) JSON.parseObject(json, LinkedList.class);
+        String com = "useradd -m adduserByjavacode&&(echo \"testcreate\"; echo \"testcreate\") |passwd adduserByjavacode";
+//        String com = "userdel -r adduserByjavacode";
+//        String com = "cat /etc/passwd |cut -f 1 -d :";
 
-        int i =1;
-        if (i < 1){
-            System.out.println(i);
-        }else {
-            System.out.println("不小于");
-        }
+//
+
+        Boolean result=ConnectLinuxCommand.connectLinux("123.206.255.202","root","Huabuxiu3817",com);
+        System.out.println(result);
     }
 
 }

@@ -5,10 +5,7 @@ import com.company.project.core.ResultGenerator;
 import com.company.project.model.*;
 import com.company.project.service.*;
 import com.company.project.service.impl.MailService;
-import com.company.project.util.GPUTimeThread;
-import com.company.project.util.HadoopTimeThread;
-import com.company.project.util.SpringUtil;
-import com.company.project.util.TimeThread;
+import com.company.project.util.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
@@ -268,16 +265,14 @@ public class ResourceApplicationController {
                     startTime.setStarttime(new Date());
 
                     applicationUser.setState("可用");
-//                    applicationUser.setPassword(data.get("password"));
-//                    applicationUser.setUsername(data.get("username"));
-
-//                    String password = UUID.randomUUID().toString().replace("-","");
-//                    applicationUser.setPassword(password);
                     resourceApplication.setPort(hostInformation.getPort());
                     resourceApplication.setPassDate(new Date());
                     resourceApplication.setProgress("使用中");
 
 //                  服务器去开户
+                    String com = "useradd -m "+applicationUser.getUsername() +"&&(echo \""+ applicationUser.getPassword() +"\"; echo \""+ applicationUser.getPassword() +"\") |passwd "+applicationUser.getUsername();
+                    Boolean result= ConnectLinuxCommand.connectLinux("123.206.255.202","root","Huabuxiu3817",com);
+                    System.out.println(result);
 
                     //总时间和总用户
                     hostQueue.setTotalTime(hostQueue.getTotalTime()+resourceApplication.getTime());

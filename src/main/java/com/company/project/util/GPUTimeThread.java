@@ -149,6 +149,12 @@ public class GPUTimeThread extends Thread {
                     startTimeService.save(startTime);
                     resourceApplicationService.update(nextApplication);
                     applicationUserService.update(nextUser);
+
+//                   去服务器去开户
+                    String com = "useradd -m "+nextUser.getUsername() +"&&(echo \""+ nextUser.getPassword() +"\"; echo \""+ nextUser.getPassword() +"\") |passwd "+nextUser.getUsername();
+                    Boolean result= ConnectLinuxCommand.connectLinux("123.206.255.202","root","Huabuxiu3817",com);
+                    System.out.println(result);
+
                     //当前队首出队之后去执行结果
                     GPUTimeThread child = new GPUTimeThread();
                     child.setApplicationUserService(getApplicationUserService());
