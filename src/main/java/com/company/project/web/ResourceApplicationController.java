@@ -360,18 +360,19 @@ public class ResourceApplicationController {
     //管理员申请记录
     @PostMapping("/all_list")
     public Result all_list() {
-        Condition condition = new Condition(ResourceApplication.class);
-        condition.createCriteria().andEqualTo("progress","排队中");
-        List<ResourceApplication> list = resourceApplicationService.findByCondition(condition);
-        condition.clear();
-        condition.createCriteria().andEqualTo("progress","使用中");
-        list.addAll(resourceApplicationService.findByCondition(condition));
-        condition.clear();
-        condition.createCriteria().andEqualTo("progress","待审核");
-        list.addAll(resourceApplicationService.findByCondition(condition));
-        condition.clear();
-        condition.createCriteria().andEqualTo("progress","已到期");
-        list.addAll(resourceApplicationService.findByCondition(condition));
+//        Condition condition = new Condition(ResourceApplication.class);
+//        condition.createCriteria().andEqualTo("progress","排队中");
+        List<ResourceApplication> list = resourceApplicationService.findAll();
+//        List<ResourceApplication> list = resourceApplicationService.findByCondition(condition);
+//        condition.clear();
+//        condition.createCriteria().andEqualTo("progress","使用中");
+//        list.addAll(resourceApplicationService.findByCondition(condition));
+//        condition.clear();
+//        condition.createCriteria().andEqualTo("progress","待审核");
+//        list.addAll(resourceApplicationService.findByCondition(condition));
+//        condition.clear();
+//        condition.createCriteria().andEqualTo("progress","已到期");
+//        list.addAll(resourceApplicationService.findByCondition(condition));
         List<ResourceApplicationVo> voList = resourceApplicationService.getVoList(list);
         return ResultGenerator.genSuccessResult(voList);
     }

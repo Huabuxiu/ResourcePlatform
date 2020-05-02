@@ -14,6 +14,8 @@ public interface UserService extends Service<User> {
 
     public List<UserVo> getUserVoList(List<User> list);
 
+    public List<UserVo> getExamineVoList(List<User> list);
+
     public UserVoTow getUserVo(User user);
 
 }

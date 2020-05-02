@@ -159,7 +159,7 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
                 }
             }).addPathPatterns("/**")
                     .excludePathPatterns("/*/login")
-                    .excludePathPatterns("/*/find_password")
+                    .excludePathPatterns("/*/forget_password")
                     .excludePathPatterns("/*/goto_find_password_back")
                     .excludePathPatterns("/*/logon")
                     .excludePathPatterns("/fileUpload")

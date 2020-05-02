@@ -31,7 +31,7 @@ public class UserController {
     @Resource
     private DepartmentUserService departmentUserService;
 
-    private String PROJECTADDRESS = "http://p2959a9495.goho.co/";
+    private String PROJECTADDRESS = " http://localhost:9527/#";
 
     @Resource
     MailService mailService;
@@ -150,7 +150,7 @@ public class UserController {
         Condition condition = new Condition(User.class);
         condition.createCriteria().andEqualTo("state",0);
         List<User> list = userService.findByCondition(condition);
-        List<UserVo> voList = userService.getUserVoList(list);
+        List<UserVo> voList = userService.getExamineVoList(list); //拒绝后用户注册记录就会被删掉
         return ResultGenerator.genSuccessResult(voList);
     }
 
@@ -163,8 +163,8 @@ public class UserController {
 //    修改密码
     @PostMapping("/change_password")
     public Result change_password(@RequestBody Map<String,String> data) {
-        User user = userService.findById(Integer.valueOf(data.get("id")));
-        if (!user.getPassword().equals(data.get("old_passworld"))){
+        User user = userService.findById(Integer.valueOf(data.get("uid")));
+        if (!user.getPassword().equals(data.get("old_password"))){
             return ResultGenerator.genFailResult("旧密码错误");
         }else {
             user.setPassword(data.get("new_password"));
@@ -175,7 +175,7 @@ public class UserController {
 
 
 //    找回密码前端邮件通知
-    @PostMapping("/find_password")
+    @PostMapping("/forget_password")
     public Result find_password(@RequestBody Map<String,String> data) {
         User user = userService.findBy("eMail",data.get("e_mail"));
         if (user==null){
@@ -184,7 +184,8 @@ public class UserController {
         MailVo mailVo = new MailVo();
         mailVo.setTo(user.geteMail());
         mailVo.setSubject("找回密码");
-        mailVo.setText("请点击下面链接去找回密码"+PROJECTADDRESS+"user/goto_find_password?e_mail="+user.geteMail());
+//        http://localhost:9527/#/regist?e_mail=2873688243@qq.com
+        mailVo.setText("请点击下面链接去找回密码"+PROJECTADDRESS+"/find_password?e_mail="+user.geteMail());
         mailService.sendMail(mailVo);
         return ResultGenerator.genSuccessResult();
     }

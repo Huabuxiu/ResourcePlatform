@@ -47,6 +47,21 @@ public class UserServiceImpl extends AbstractService<User> implements UserServic
     }
 
     @Override
+    public List<UserVo> getExamineVoList(List<User> list) {
+        List<UserVo> voList = new ArrayList<>();
+
+        for (User ele :
+                list) {
+            if (ele.getUserRole() == 1 ){//过滤掉管理员
+                UserVo vo = new UserVo(ele);
+                vo.setDepartment(departmentService.findById(departmentUserService.findBy("id", ele.getId()).getDid()).getName());
+                voList.add(vo);
+            }
+        }
+        return voList;
+    }
+
+    @Override
     public UserVoTow getUserVo(User user) {
         UserVoTow userVo = new UserVoTow(user);
         userVo.setDepartment(departmentService.findById(departmentUserService.findBy("id",user.getId()).getDid()).getName());

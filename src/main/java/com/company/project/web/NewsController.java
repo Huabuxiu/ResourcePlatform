@@ -7,6 +7,7 @@ import com.company.project.service.NewsService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
+import tk.mybatis.mapper.entity.Condition;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -62,5 +63,17 @@ public class NewsController {
         List<News> list = newsService.findAll();
         List<NewsVo> voList = newsService.getVoList(list);
         return ResultGenerator.genSuccessResult(voList);
+    }
+
+    @PostMapping("/home_list")
+    public Result home_list(){
+        Condition condition = new Condition(News.class);
+        condition.createCriteria();
+        condition.orderBy("regTime").desc();
+        List<News> list = newsService.findByCondition(condition);
+        if (list.size() > 6){
+            list = list.subList(0,6);
+        }
+        return ResultGenerator.genSuccessResult(list);
     }
 }
